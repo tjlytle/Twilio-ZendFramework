@@ -4,6 +4,12 @@ require_once 'Twilio/Resource/Account.php';
 require_once 'Zend/Http/Client.php';
 class Twilio_Resource_AccountTest extends PHPUnit_Framework_TestCase
 {
+	public function testParentTag()
+	{
+		$account = new Twilio_Resource_Account();
+		$this->assertEquals('Account', $account->getParentTag());
+	}
+	
 	public function testUriString()
 	{
 		$account = new Twilio_Resource_Account('sid');

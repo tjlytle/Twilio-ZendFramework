@@ -1,6 +1,7 @@
 <?php
 /**
- * Abstract resource object for interacting with REST and XML data.
+ * Abstract Resource - object for storing XML data.
+ * TODO: Support JSON as well.
  * 
  * @author tjlytle
  */
@@ -13,6 +14,13 @@ class Twilio_Resource_ResourceAbstract
         $method = 'get' . ucfirst($name);
         if(method_exists($this, $method)){
             return $this->$method();
+        }
+        
+        //allow access to any undefined properties as long as they exsist, not
+        //sure if it would be better to force get functions for all properties
+        $property = ucfirst($name);
+        if(isset($this->getXml()->$property)){
+        	return (string) $this->getXml()->$property;
         }
     }
     
@@ -42,7 +50,7 @@ class Twilio_Resource_ResourceAbstract
     {
         if(is_null($this->xml)){
             $response  = $this->getTwilioClient()->get($this);
-            $this->xml = simplexml_load_string($response->getBody());
+            $this->setXml($response->getBody());
         }
         return $this->xml;
     }
