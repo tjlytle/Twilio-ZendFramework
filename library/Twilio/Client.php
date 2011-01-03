@@ -13,6 +13,8 @@ class Twilio_Client
     protected $apiVersion = '2010-04-01';
     protected $apiUrl = 'https://api.twilio.com';
 	
+    protected $accounts;
+    
     protected static $defaultClient;
     
     public static function setDefaultClient(Twilio_Client $client)
@@ -80,6 +82,14 @@ class Twilio_Client
 	public function get($uri)
 	{
 		$uri = (string) $uri;
+		
+		//TODO: Currently removes API version if passed, perhaps resources
+		//should be expected to include it all the time
+		
+		if(strpos($uri, '/2010-04-01/') === 0){
+			$uri = substr($uri, 12);
+		}
+
 		$this->getHttpClient()->setUri($this->apiUrl.'/'.$this->apiVersion.'/'.$uri);
 		
 		$response = $this->getHttpClient()->request(Zend_Http_Client::GET);
@@ -89,5 +99,22 @@ class Twilio_Client
         }
 
 		return $response;
+	}
+	
+	public function __get($name)
+	{
+		if('accounts' == $name){
+			return $this->getAccounts();
+		}
+	}
+	
+	public function getAccounts()
+	{
+		if(empty($this->accounts)){
+			require_once 'Twilio/Resource/List/Accounts.php';
+			$this->accounts = new Twilio_Resource_List_Accounts();
+			$this->accounts->setTwilioClient($this);
+		}
+		return $this->accounts;
 	}
 }

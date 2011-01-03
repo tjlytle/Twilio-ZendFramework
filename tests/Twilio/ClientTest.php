@@ -85,4 +85,25 @@ class Twilio_ClientTest extends PHPUnit_Framework_TestCase
         $twilio->setHttpClient($client);
         $this->assertEquals($http_response, $twilio->get('resource_string'));
 	}
+	
+	public function testGetAllowsFullURI()
+	{
+        $twilio = new Twilio_Client('sid', 'token');
+        $uri = '/2010-04-01/resource_string';
+        $http_response = new Zend_Http_Response(200, array(), 'test');
+
+        $client = $this->getMock('Zend_Http_Client', array('setUri', 'request'));
+        $client->expects($this->once())
+               ->method('setUri')
+               ->with('https://api.twilio.com' . $uri)
+               ->will($this->returnValue($http_response));
+               
+        $client->expects($this->once())
+               ->method('request')
+               ->with($this->equalTo(Zend_Http_Client::GET))
+               ->will($this->returnValue($http_response));
+               
+        $twilio->setHttpClient($client);
+        $this->assertEquals($http_response, $twilio->get($uri));		
+	}
 }

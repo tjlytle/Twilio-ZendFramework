@@ -18,14 +18,12 @@ class Twilio_Resource_IncomingPhoneNumberTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals($twilio, $number->getTwilioClient());
 	}
 	
-    /**
-     * @expectedException Twilio_Resource_Exception
-     */
     public function testNoDefaultSid()
     {
         $twilio = new Twilio_Client('accountSid', 'authToken'); 
         $number = new Twilio_Resource_IncomingPhoneNumber();
-        $number->getSid();
+        
+        $this->assertEquals(null, $number->getSid());
     }
 	
     public function testGetNumber()

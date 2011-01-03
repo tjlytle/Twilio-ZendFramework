@@ -18,14 +18,12 @@ class Twilio_Resource_CallTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals($twilio, $call->getTwilioClient());
 	}
 	
-    /**
-     * @expectedException Twilio_Resource_Exception
-     */
     public function testNoDefaultSid()
     {
         $twilio = new Twilio_Client('accountSid', 'authToken'); 
         $call = new Twilio_Resource_Call();
-        $call->getSid();
+        
+        $this->assertEquals(null, $call->getSid());
     }
 	
 	

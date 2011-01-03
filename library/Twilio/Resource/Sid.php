@@ -11,6 +11,7 @@ class Twilio_Resource_Sid extends Twilio_Resource_ResourceAbstract
     protected $accountSid; //write once property, defaults to client's accountSid
     protected $sid; //write once property, used to fetch resource
     protected $parentTag; //tag data is wrapped in
+    
     /**
      * Created the resource, optionally setting a sid or the XML data (when 
      * constructed by a resource list).
@@ -28,6 +29,12 @@ class Twilio_Resource_Sid extends Twilio_Resource_ResourceAbstract
         }
     }
     
+    /**
+     * Allows sid to be set only once, and if the XML is not already loaded.
+     * 
+     * @param string $sid
+     * @throws Twilio_Resource_Exception
+     */
     public function setSid($sid)
     {
         if(!empty($this->sid) OR !empty($this->xml)){
@@ -36,54 +43,49 @@ class Twilio_Resource_Sid extends Twilio_Resource_ResourceAbstract
         }
         
         $this->sid = $sid;
+        return $this;
     }
     
+    /**
+     * Returns the sid
+     * 
+     * @return string
+     */
     public function getSid()
     {
         if(empty($this->xml) AND empty($this->sid)){
         	require_once 'Twilio/Resource/Exception.php';
-        	throw new Twilio_Resource_Exception('Sid not set');
-            return $this->sid;
+        	return null;
         } elseif (!empty($this->sid)){
         	return $this->sid;
         }
         return (string) $this->getXml()->Sid;
     }
     
-    public function getAccountSid()
+    /**
+     * Allows sid to be accessed without loading XML data, allow access to 
+     * resource data as properties. Using format get[Type][Property]
+     * 
+     * 'status' on a call resource would check getCallStatus()
+     * 
+     * @see Twilio/Resource/Twilio_Resource_ResourceAbstract::__get()
+     */
+    public function __get($name)
     {
-        if(empty($this->accountSid)){
-            $this->setAccountSid($this->getTwilioClient()->getAccountSid());
+        //special case for sid - perhaps force using getSid()
+        if('sid' == $name){
+            return $this->getSid();
         }
-        return $this->accountSid;
-    }
-    
-    //TODO: Make settable only once
-    public function setAccountSid($sid)
-    {
-        $this->accountSid = $sid;
-    }
-    
-    //used to determine top leve XML element
-    public function getParentTag()
-    {
-    	if(empty($this->parentTag)){
-    		$parts = explode('_', get_class($this));
-    		$this->setParentTag(ucfirst(end($parts)));
-    	}
-    	return $this->parentTag;
-    }
-    
-    public function setParentTag($tag)
-    {
-    	$this->parentTag = $tag;
-    }
-    
-    public function setXml($xml)
-    {
-    	parent::setXml($xml);
-    	if(isset($this->xml->{$this->getParentTag()})){
-    	   $this->xml = $this->xml->{$this->getParentTag()};
-    	}
+
+        $return = parent::__get($name);
+        if(!is_null($return)){
+            return $return;
+        }
+
+        $property = ucfirst($name);
+        if(isset($this->getXml()->{$this->getType()}->$property)){
+            return (string) $this->getXml()->{$this->getType()}->$property;
+        }
+
     }
 }
