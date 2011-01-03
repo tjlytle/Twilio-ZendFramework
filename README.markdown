@@ -1,4 +1,4 @@
-# Twilio Client for Zend Framwork
+# Twilio Client for Zend Framework
 -----------------------------
 Zend Framework based client for the [Twilio][1] API. Still in the first stages
 of development. Expect things to change. The example code should remain
